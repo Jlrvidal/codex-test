@@ -10,12 +10,22 @@ each step.
 ## Compile
 
 ```bash
+
+javac src/EndpointTracer.java src/EndpointTracerGUI.java
+jar cfe EndpointTracer.jar EndpointTracerGUI -C src .
 javac src/EndpointTracer.java
+
 ```
 
 ## Run
 
 ```bash
+
+java -jar EndpointTracer.jar
+```
+
+The application opens a window where you can enter the URL or hostname. Results are also saved to `trace_output.txt` in the current directory so you can review the traceroute (or `tracert` on Windows) output and a summary of the HTTPS connection test.
+
 java -cp src EndpointTracer <endpoint>
 ```
 
