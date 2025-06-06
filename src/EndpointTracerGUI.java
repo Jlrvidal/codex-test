@@ -9,6 +9,7 @@ import java.io.*;
  */
 public class EndpointTracerGUI extends JFrame {
     private final JTextField hostField = new JTextField(30);
+    private final JTextField uaField = new JTextField("Mozilla/5.0", 20);
     private final JButton startButton = new JButton("Start");
     private final JButton cancelButton = new JButton("Cancel");
     private final JProgressBar progressBar = new JProgressBar(0, 100);
@@ -25,6 +26,8 @@ public class EndpointTracerGUI extends JFrame {
         JPanel inputPanel = new JPanel();
         inputPanel.add(new JLabel("Endpoint:"));
         inputPanel.add(hostField);
+        inputPanel.add(new JLabel("User-Agent:"));
+        inputPanel.add(uaField);
         inputPanel.add(startButton);
         inputPanel.add(cancelButton);
 
@@ -48,6 +51,7 @@ public class EndpointTracerGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "Please enter a host or URL.");
             return;
         }
+        EndpointTracer.setUserAgent(uaField.getText().trim());
         startButton.setEnabled(false);
         cancelButton.setEnabled(true);
         progressBar.setValue(0);

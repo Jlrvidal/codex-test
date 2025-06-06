@@ -13,7 +13,6 @@ each step.
 
 javac src/EndpointTracer.java src/EndpointTracerGUI.java
 jar cfe EndpointTracer.jar EndpointTracerGUI -C src .
-javac src/EndpointTracer.java
 
 ```
 
@@ -24,12 +23,13 @@ javac src/EndpointTracer.java
 java -jar EndpointTracer.jar
 ```
 
-The application opens a window where you can enter the URL or hostname. Results are also saved to `trace_output.txt` in the current directory so you can review the traceroute (or `tracert` on Windows) output and a summary of the HTTPS connection test.
+You can also run the command-line version:
 
-java -cp src EndpointTracer <endpoint>
+```bash
+java -cp src EndpointTracer <endpoint> [userAgent]
 ```
 
-Replace `<endpoint>` with the HTTPS URL or hostname you want to check. The program writes all messages to `trace_output.txt` in the current directory so you can review the traceroute (or `tracert` on Windows) output and a summary of the HTTPS connection test.
+The application opens a window where you can enter the URL or hostname and optionally set the **User-Agent** used for the HTTPS check. Results are saved to `trace_output.txt` in the current directory so you can review the traceroute (or `tracert` on Windows) output and a summary of the HTTPS connection test.
 Errors are explained with possible causes and brief suggestions so that an
 average user can act on them, for example by installing a missing certificate in
 the JVM truststore if the TLS handshake fails.
