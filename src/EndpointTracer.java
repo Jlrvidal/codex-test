@@ -9,6 +9,10 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLKeyException;
@@ -22,6 +26,11 @@ public class EndpointTracer {
     // Stores the certificate presented by the server during the last connection attempt
     private static X509Certificate lastServerCert;
 
+
+
+public class EndpointTracer {
+
+
     /**
      * Entry point of the program. It expects a single argument with the
      * endpoint to trace and test. All output is written to a file in the
@@ -34,7 +43,9 @@ public class EndpointTracer {
         }
 
         String endpoint = args[0];
+
         String host = extractHost(endpoint); // hostname used for traceroute
+
         String outputName = "trace_output.txt";
 
         // Write results to the file using a PrintWriter
@@ -44,6 +55,9 @@ public class EndpointTracer {
             System.out.println("Running traceroute to " + host + "...");
             traceRoute(host, writer);
             System.out.println("Testing HTTPS connection to " + endpoint + "...");
+
+            traceRoute(endpoint, writer);
+
             testConnection(endpoint, writer);
 
             System.out.println("Results written to " + outputName);
@@ -58,7 +72,9 @@ public class EndpointTracer {
      */
     private static void traceRoute(String endpoint, PrintWriter writer) {
         writer.println("Running traceroute to " + endpoint + "...");
+
         System.out.println("Tracing route to " + endpoint);
+
         String os = System.getProperty("os.name").toLowerCase();
         String[] cmd = os.contains("win") ? new String[] {"tracert", endpoint}
                 : new String[] {"traceroute", endpoint};
@@ -70,6 +86,7 @@ public class EndpointTracer {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     writer.println(line);
+
                     System.out.println(line); // show progress on screen
                 }
            }
@@ -79,6 +96,15 @@ public class EndpointTracer {
                        + ". The tool might be missing or the network is blocked.");
                 System.out.println("Traceroute finished with code " + exit);
            }
+
+                }
+            }
+            int exit = p.waitFor();
+            if (exit != 0) {
+                writer.println("Traceroute finished with code " + exit
+                        + ". The tool might be missing or the network is blocked.");
+            }
+
         } catch (Exception e) {
             writer.println("Could not execute traceroute: " + e.getMessage());
         }
@@ -91,20 +117,27 @@ public class EndpointTracer {
     private static void testConnection(String endpoint, PrintWriter writer) {
         writer.println();
         writer.println("Testing HTTPS connection to " + endpoint + "...");
+
         System.out.println("Connecting to " + endpoint);
+
 
         try {
             URL url = endpoint.startsWith("http") ? new URL(endpoint)
                     : new URL("https://" + endpoint);
+
             CapturingTrustManager capTm = createCapturingTrustManager();
             SSLContext ctx = SSLContext.getInstance("TLS");
             ctx.init(null, new TrustManager[] { capTm }, new SecureRandom());
             HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
             conn.setSSLSocketFactory(ctx.getSocketFactory());
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
             conn.connect();
             int code = conn.getResponseCode();
+
             String success = "Connection successful. Response code: " + code;
             writer.println(success);
             System.out.println(success);
@@ -243,6 +276,46 @@ public class EndpointTracer {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
             return delegate.getAcceptedIssuers();
+            writer.println("Connection successful. Response code: " + code);
+        } catch (UnknownHostException e) {
+            writer.println("Unable to resolve host. This usually means a DNS problem or missing network connectivity.");
+        } catch (ConnectException e) {
+            writer.println("Connection refused. A firewall, proxy, or antivirus might be blocking access.");
+        } catch (SocketTimeoutException e) {
+            writer.println("The connection timed out. The network could be congested or the server is unreachable.");
+        } catch (SocketException e) {
+            writer.println("A network socket error occurred. The connection may have been reset or a broken pipe detected.");
+        } catch (SSLHandshakeException e) {
+            writer.println("TLS handshake failed. The certificate could be invalid, untrusted, expired, or the hostname does not match.");
+        } catch (SSLKeyException e) {
+            writer.println("SSL key error. Check that the key and certificate configuration is correct.");
+        } catch (SSLPeerUnverifiedException e) {
+            writer.println("Failed to verify the server certificate. It might not be signed by a trusted CA.");
+        } catch (SSLException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof CertificateException) {
+                writer.println("Certificate validation failed. The certificate might be malformed or unreadable.");
+            } else if (cause instanceof KeyManagementException) {
+                writer.println("Error setting up the SSL context. Verify your truststore and key configuration.");
+            } else if (cause instanceof KeyStoreException) {
+                writer.println("Unable to access the keystore. The truststore path or password may be incorrect.");
+            } else if (cause instanceof NoSuchAlgorithmException) {
+                writer.println("Missing cryptographic algorithm. The JVM might not support the required TLS version.");
+            } else {
+                writer.println("General SSL error: " + e.getMessage());
+            }
+        } catch (IllegalStateException e) {
+            writer.println("Illegal state encountered. This could be due to class instrumentation or classpath issues.");
+        } catch (NoClassDefFoundError e) {
+            writer.println("A required class was not found. Ensure all dependencies are present.");
+        } catch (SecurityException e) {
+            writer.println("A security manager is preventing the connection.");
+        } catch (UnsupportedOperationException e) {
+            writer.println("The requested operation is not supported in this environment.");
+        } catch (IOException e) {
+            writer.println("I/O error during communication: " + e.getMessage());
+        } catch (Exception e) {
+            writer.println("Unexpected error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
         }
     }
 }
