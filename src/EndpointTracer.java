@@ -130,6 +130,8 @@ public class EndpointTracer {
                 // obtain a readable representation of the certificate subject
                 String subject = lastServerCert.getSubjectX500Principal().getName();
                 String msg = "TLS handshake failed. Certificate not trusted: " + subject
+
+                String msg = "TLS handshake failed. Certificate not trusted: " + lastServerCert.getSubjectDN()
                         + ". Install this certificate or its issuing CA in the JVM truststore.";
                 writer.println(msg);
                 System.out.println(msg);
