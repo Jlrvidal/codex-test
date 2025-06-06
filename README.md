@@ -10,13 +10,16 @@ each step.
 ## Compile
 
 ```bash
+
 javac src/EndpointTracer.java src/EndpointTracerGUI.java
 jar cfe EndpointTracer.jar EndpointTracerGUI -C src .
+
 ```
 
 ## Run
 
 ```bash
+
 java -jar EndpointTracer.jar
 ```
 

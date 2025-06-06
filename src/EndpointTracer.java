@@ -62,12 +62,10 @@ public class EndpointTracer {
         // Write results to the file using a PrintWriter
         try (PrintWriter writer = new PrintWriter(new FileWriter(outputName))) {
             writer.println("Tracing endpoint: " + endpoint);
-
             writer.println("Running traceroute to " + host + "...");
             traceRoute(host, writer);
             writer.println("Testing HTTPS connection to " + endpoint + "...");
             testConnection(endpoint, writer);
-
             writer.println("Results written to " + outputName);
         } catch (IOException e) {
             System.err.println("Unable to write output file: " + e.getMessage());
